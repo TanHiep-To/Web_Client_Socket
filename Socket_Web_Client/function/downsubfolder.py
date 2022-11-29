@@ -5,6 +5,7 @@ import os
 from bs4 import BeautifulSoup
 from function.request import *
 from function.getheader import *
+import string
 
 
 def downloadSubFolder(mainResponse, mainHOST, mainPATH, mainURL):
@@ -31,6 +32,9 @@ def downloadSubFolder(mainResponse, mainHOST, mainPATH, mainURL):
 
             server_address = (HOST, PORT)
 
+            if "%20" in filelink:
+                filelink = filelink.replace("%20"," ")
+                
             try:
                 s.connect(server_address)
                 subpath = request.path + request.content
@@ -44,7 +48,7 @@ def downloadSubFolder(mainResponse, mainHOST, mainPATH, mainURL):
                 length = getheader[0]
                 response = b""
                 while True:
-                    data = s.recv(10000000)
+                    data = s.recv(length-len(response))
                     if len(response) == length:
                         break
                     else:
