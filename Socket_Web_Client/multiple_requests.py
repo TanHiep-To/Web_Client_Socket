@@ -6,15 +6,14 @@ import threading
 import os.path
 from os import path
 import os
+from bs4 import BeautifulSoup
 from function.request import *
 from function.getheader import *
 from function.writeFileChunked import *
-from function.downsubfolder import *
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.settimeout(10)
-
 
 def handle_request(request):
 
@@ -24,10 +23,8 @@ def handle_request(request):
     PATH = request.path
     URL = request.url
 
-    if len(URL) == 0:
-        return False
-
     server_address = (HOST, PORT)
+    
     try:
 
         if s == None:
@@ -36,15 +33,15 @@ def handle_request(request):
 
         path = request.path + request.content
 
-        request = "GET " + path + \
+        requestx = "GET " + path + \
             " HTTP/1.1\r\nConection:Keep-Alive\r\nHost:" + HOST + "\r\n\r\n"
 
-        s.sendall(request.encode())
+        s.sendall(requestx.encode())
 
         getheader = headerrespone(s)
 
         length = getheader[0]
-
+        
         if length != -1:
             getContent_Length(s, length, HOST, PATH, DATABASE, URL)
 
@@ -54,7 +51,6 @@ def handle_request(request):
     except Exception as e:
         print(e)
 
-    return True
 
 
 def getContent_Length(s, length, HOST, PATH, DATABASE, URL):
@@ -70,24 +66,68 @@ def getContent_Length(s, length, HOST, PATH, DATABASE, URL):
                 response += data
     except socket.timeout as e:
         print('Get Data unsuccessful\n\n')
-
+        
     document = PATH.split("/")
     path = document[len(document) - 2]
+        
+    downloadSubFolder(response, HOST, path, URL)
+    
+    print('\nDownload Subfolder successful\n')
 
-    mainfolder_path = './write_file/' + 'Content_Length'
-    if os.path.exists(mainfolder_path) == False:
-        os.mkdir(mainfolder_path)
+ 
+def downloadSubFolder(mainResponse, mainHOST, mainPATH, mainURL):
+    
+    soup = BeautifulSoup(mainResponse, "html.parser")
+    filestype = '.'
 
-    folder_path = './' + mainfolder_path + '/' + HOST
+    folder_path = './write_file/Content_Length/' + mainHOST + '_' + mainPATH
+    
     if os.path.exists(folder_path) == False:
         os.mkdir(folder_path)
-        with open('./' + folder_path + '/' + HOST + '_' + DATABASE, 'wb') as f:
-            f.write(response)
-        print('\nDownload data successful\n')
-    else:
-        with open('./' + folder_path + '/' + HOST + '_' + DATABASE, 'wb') as f:
-            f.write(response)
-        print('\nDownload data successful\n')
+
+    for link in soup.find_all('a', href=True):
+        filelink = link.get('href')
+
+        if filestype in filelink:
+            
+            suburl = mainURL + filelink
+
+
+            if "%20" in filelink:
+                filelink = filelink.replace("%20"," ")
+            
+            request = RequestParse(suburl)
+            HOST = request.host
+            PORT = 80
+            DATABASE = request.content
+            PATH = request.path
+
+            server_address = (HOST, PORT)
+            try:
+                
+                subpath = request.path + request.content
+
+                request = "GET " + subpath + \
+                    " HTTP/1.1\r\nConection:Keep-Alive\r\nHost:" + HOST + "\r\n\r\n"
+
+                s.sendall(request.encode())
+
+                getheader = headerrespone(s)
+                length = getheader[0]
+                
+                response = b""
+                while True:
+                    data = s.recv(length-len(response))
+                    if len(response) == length:
+                        break
+                    else:
+                        response += data
+                    with open('./' + folder_path + '/' + filelink, 'wb') as f:
+                        f.write(response)
+                print('Download data successful.\n')
+                    
+            except socket.timeout as e:
+                print('Download Sub File unsuccessful.\n')
 
 
 def connect(request):
@@ -108,18 +148,10 @@ def connect(request):
         print(e)
 
 
-ok = 0
-while True:
+request = getrequest()
 
-    request = getrequest()
+connect(request)
 
-    if ok == 0:
-
-        connect(request)
-        ok = 1
-
-    check = handle_request(request)
-    if check == False:
-        break
+handle_request(request)
 
 s.close()
