@@ -33,4 +33,4 @@ IV. HƯỚNG DẪN SỬ DỤNG .
       
     3 . Chú ý : Các máy tính phải được cài đặt môi trường cho python .
     
-    
+    https://user-images.githubusercontent.com/93416202/196466388-d65f46f9-ea30-4dd2-bf0c-374eb91d6adc.png
