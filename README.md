@@ -1,5 +1,5 @@
  #                                                                WEB CLIENT SOCKET
-                                                       Đồ án thực hạnh mạng máy tính - Đề 02 : Web Client
+                                    Đồ án thực hạnh mạng máy tính - Đề 02 : Web Client
 
 
 **_I .GIỚI THIỆU :_**  Mục tiêu là viết một web client đơn giản. Web client sẽ gửi request đến web server, port 80 để tại nội dung của page và lưu vào file .
