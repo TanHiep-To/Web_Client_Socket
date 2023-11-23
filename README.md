@@ -23,7 +23,8 @@ Mục tiêu là viết một web client đơn giản. Web client sẽ gửi requ
     
    **• Ứng dụng được viết trên hệ điều hành Windows 11 .**
    
-   **• Ngôn ngữ lập trình : Python 3 . • IDE sử dụng : Visual Studio Code.**
+   **• Ngôn ngữ lập trình : Python 3 .
+   **• IDE sử dụng : Visual Studio Code.**
    
    **• Các dữ liệu được lưu trữ tại các folder theo yêu cầu .**
    
